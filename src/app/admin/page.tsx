@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { formatKickoff } from "@/lib/format";
 import { displayName } from "@/lib/display-name";
-import { setBlocked } from "./actions";
+import { setBlocked, setAdmin } from "./actions";
+import { OWNER_EMAIL } from "./owner";
 
 export default async function AdminPage() {
   const { user, supabase } = await requireUser();
@@ -68,24 +69,46 @@ export default async function AdminPage() {
               {isSelf ? (
                 <span className="text-xs text-foreground/40">você</span>
               ) : (
-                <form action={setBlocked}>
-                  <input type="hidden" name="participanteId" value={p.id} />
-                  <input
-                    type="hidden"
-                    name="bloquear"
-                    value={p.bloqueado ? "false" : "true"}
-                  />
-                  <button
-                    type="submit"
-                    className={`rounded-md px-3 py-1 text-xs font-medium border ${
-                      p.bloqueado
-                        ? "border-green-600/40 text-green-700 hover:bg-green-600/10"
-                        : "border-red-600/40 text-red-700 hover:bg-red-600/10"
-                    }`}
-                  >
-                    {p.bloqueado ? "Desbloquear" : "Bloquear"}
-                  </button>
-                </form>
+                <div className="flex items-center gap-2 shrink-0">
+                  <form action={setAdmin}>
+                    <input type="hidden" name="participanteId" value={p.id} />
+                    <input
+                      type="hidden"
+                      name="tornarAdmin"
+                      value={p.is_admin ? "false" : "true"}
+                    />
+                    <button
+                      type="submit"
+                      disabled={p.email === OWNER_EMAIL}
+                      className="rounded-md px-3 py-1 text-xs font-medium border border-black/15 dark:border-white/20 hover:bg-foreground/5 disabled:opacity-40"
+                      title={
+                        p.email === OWNER_EMAIL
+                          ? "O dono do bolão é sempre admin"
+                          : undefined
+                      }
+                    >
+                      {p.is_admin ? "Remover admin" : "Tornar admin"}
+                    </button>
+                  </form>
+                  <form action={setBlocked}>
+                    <input type="hidden" name="participanteId" value={p.id} />
+                    <input
+                      type="hidden"
+                      name="bloquear"
+                      value={p.bloqueado ? "false" : "true"}
+                    />
+                    <button
+                      type="submit"
+                      className={`rounded-md px-3 py-1 text-xs font-medium border ${
+                        p.bloqueado
+                          ? "border-green-600/40 text-green-700 hover:bg-green-600/10"
+                          : "border-red-600/40 text-red-700 hover:bg-red-600/10"
+                      }`}
+                    >
+                      {p.bloqueado ? "Desbloquear" : "Bloquear"}
+                    </button>
+                  </form>
+                </div>
               )}
             </li>
           );
