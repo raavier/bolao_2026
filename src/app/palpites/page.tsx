@@ -9,7 +9,7 @@ export default async function PalpitesPage() {
   const [{ data: jogos }, { data: palpites }] = await Promise.all([
     supabase
       .from("jogos")
-      .select("id, grupo, mandante, visitante, inicio")
+      .select("id, fase, grupo, mandante, visitante, inicio")
       .order("inicio", { ascending: true }),
     supabase
       .from("palpites")
@@ -23,6 +23,7 @@ export default async function PalpitesPage() {
     const palpite = palpitePorJogo.get(jogo.id);
     return {
       id: jogo.id,
+      fase: jogo.fase,
       grupo: jogo.grupo,
       mandante: jogo.mandante,
       visitante: jogo.visitante,

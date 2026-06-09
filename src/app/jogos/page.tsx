@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { Flag } from "@/components/flag";
+import { PhaseTag } from "@/components/phase-tag";
 import { formatKickoff } from "@/lib/format";
 import { isPredictionOpen } from "@/lib/palpites/lock";
 import { VerPalpites } from "./ver-palpites";
@@ -10,7 +11,7 @@ export default async function JogosPage() {
   const supabase = await createClient();
   const { data: jogos } = await supabase
     .from("jogos")
-    .select("id, grupo, inicio, mandante, visitante, gols_mandante, gols_visitante, status")
+    .select("id, fase, grupo, inicio, mandante, visitante, gols_mandante, gols_visitante, status")
     .order("inicio", { ascending: true });
 
   return (
@@ -29,7 +30,8 @@ export default async function JogosPage() {
           const comecou = !isPredictionOpen(new Date(jogo.inicio));
           return (
             <li key={jogo.id} className="py-3">
-              <div className="flex items-center gap-1 text-xs text-foreground/50">
+              <div className="flex items-center gap-2 text-xs text-foreground/50">
+                <PhaseTag phase={jogo.fase} />
                 <span>{formatKickoff(jogo.inicio)}</span>
                 {jogo.grupo ? <span>· Grupo {jogo.grupo}</span> : null}
               </div>

@@ -19,7 +19,7 @@ export default async function RankingPage() {
     supabase.from("participantes").select("id, nome, nickname"),
     supabase
       .from("jogos")
-      .select("id, fase, mandante, visitante, gols_mandante, gols_visitante")
+      .select("id, fase, inicio, mandante, visitante, gols_mandante, gols_visitante")
       .eq("status", "encerrado"),
   ]);
 
@@ -38,6 +38,7 @@ export default async function RankingPage() {
   const games: BreakdownGame[] = jogosEncerrados.map((j) => ({
     id: j.id,
     phase: j.fase,
+    inicio: j.inicio,
     mandante: j.mandante,
     visitante: j.visitante,
     golsMandante: j.gols_mandante as number,

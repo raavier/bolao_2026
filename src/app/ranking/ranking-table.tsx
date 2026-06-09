@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Flag } from "@/components/flag";
+import { PhaseTag } from "@/components/phase-tag";
 import type { BreakdownItem } from "@/lib/scoring/ranking";
 import type { HitLevel } from "@/lib/scoring/score-match";
 
@@ -110,8 +111,9 @@ function RankingRowGroup({
                         <span className="truncate">{item.visitante}</span>
                       </span>
                     </div>
-                    {/* Linha B: palpite, nível de acerto e pontos */}
+                    {/* Linha B: fase, palpite, nível de acerto e pontos */}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5 text-foreground/60">
+                      <PhaseTag phase={item.phase} />
                       <span>
                         {item.palpite
                           ? `palpite ${item.palpite.home}×${item.palpite.away}`

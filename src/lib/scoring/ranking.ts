@@ -17,10 +17,13 @@ export type RankingGame = {
 export type BreakdownGame = RankingGame & {
   mandante: string;
   visitante: string;
+  inicio: string;
 };
 
 export type BreakdownItem = {
   jogoId: number;
+  phase: Phase;
+  inicio: string;
   mandante: string;
   visitante: string;
   resultado: { home: number; away: number };
@@ -102,7 +105,8 @@ export function computeRanking(
 /**
  * Detalha, jogo a jogo, de onde um participante ganhou (ou não) pontos.
  * Só considera jogos encerrados. Inclui jogos sem palpite (0 pts), para deixar
- * claro o que a pessoa deixou passar. Ordena por mais pontos primeiro.
+ * claro o que a pessoa deixou passar. Ordena por data do jogo (mais antigo
+ * primeiro).
  */
 export function participantBreakdown(
   participanteId: string,
@@ -124,6 +128,8 @@ export function participantBreakdown(
       if (!palpite) {
         return {
           jogoId: game.id,
+          phase: game.phase,
+          inicio: game.inicio,
           mandante: game.mandante,
           visitante: game.visitante,
           resultado: actual,
@@ -137,6 +143,8 @@ export function participantBreakdown(
       const { points, hitLevel } = scoreMatch(predScore, actual, game.phase, config);
       return {
         jogoId: game.id,
+        phase: game.phase,
+        inicio: game.inicio,
         mandante: game.mandante,
         visitante: game.visitante,
         resultado: actual,
@@ -145,5 +153,5 @@ export function participantBreakdown(
         points,
       };
     })
-    .sort((a, b) => b.points - a.points || a.jogoId - b.jogoId);
+    .sort((a, b) => a.inicio.localeCompare(b.inicio) || a.jogoId - b.jogoId);
 }

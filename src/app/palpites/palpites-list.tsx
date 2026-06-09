@@ -2,11 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { GROUPS, ALL_TEAMS } from "@/lib/groups";
+import type { Phase } from "@/lib/scoring/phases";
 import { formatKickoff } from "@/lib/format";
 import { PalpiteForm } from "./palpite-form";
 
 export type JogoPalpite = {
   id: number;
+  fase: Phase;
   grupo: string | null;
   mandante: string;
   visitante: string;
@@ -109,6 +111,7 @@ export function PalpitesList({ jogos }: { jogos: JogoPalpite[] }) {
             <PalpiteForm
               key={jogo.id}
               jogoId={jogo.id}
+              fase={jogo.fase}
               mandante={jogo.mandante}
               visitante={jogo.visitante}
               inicioLabel={formatKickoff(jogo.inicio)}

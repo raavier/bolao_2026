@@ -2,10 +2,13 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { Flag } from "@/components/flag";
+import { PhaseTag } from "@/components/phase-tag";
+import type { Phase } from "@/lib/scoring/phases";
 import { savePalpite, type SavePalpiteResult } from "./actions";
 
 type PalpiteFormProps = {
   jogoId: number;
+  fase: Phase;
   mandante: string;
   visitante: string;
   inicioLabel: string;
@@ -59,7 +62,10 @@ export function PalpiteForm(props: PalpiteFormProps) {
       className="flex flex-col gap-1 border-b border-black/5 dark:border-white/10 py-3"
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs text-foreground/50">{props.inicioLabel}</span>
+        <span className="flex items-center gap-2 text-xs text-foreground/50">
+          <PhaseTag phase={props.fase} />
+          {props.inicioLabel}
+        </span>
         <StatusTag isOpen={isOpen} temSalvo={temSalvo} pendente={!campoIgualSalvo} />
       </div>
       <input type="hidden" name="jogoId" value={props.jogoId} />

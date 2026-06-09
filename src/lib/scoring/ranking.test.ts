@@ -73,20 +73,25 @@ describe("computeRanking", () => {
 
 describe("participantBreakdown", () => {
   const games: BreakdownGame[] = [
-    { id: 1, phase: "group", mandante: "Brasil", visitante: "Sérvia", golsMandante: 2, golsVisitante: 1 },
-    { id: 2, phase: "group", mandante: "Suíça", visitante: "Camarões", golsMandante: 0, golsVisitante: 0 },
+    { id: 1, phase: "group", inicio: "2026-06-11T18:00:00Z", mandante: "Brasil", visitante: "Sérvia", golsMandante: 2, golsVisitante: 1 },
+    { id: 2, phase: "group", inicio: "2026-06-12T18:00:00Z", mandante: "Suíça", visitante: "Camarões", golsMandante: 0, golsVisitante: 0 },
   ];
 
-  it("detalha cada jogo com palpite, nível de acerto e pontos", () => {
+  it("detalha cada jogo com fase, palpite, nível de acerto e pontos", () => {
     const preds = [
       { participanteId: "ana", jogoId: 1, golsMandante: 2, golsVisitante: 1 }, // crava: 5
       // jogo 2 sem palpite
     ];
     const bd = participantBreakdown("ana", games, preds, config);
     expect(bd).toHaveLength(2);
-    // ordenado por mais pontos: jogo 1 (5) antes do jogo 2 (0)
-    expect(bd[0]).toMatchObject({ jogoId: 1, hitLevel: "exact_score", points: 5 });
+    expect(bd[0]).toMatchObject({ jogoId: 1, phase: "group", hitLevel: "exact_score", points: 5 });
     expect(bd[0].palpite).toEqual({ home: 2, away: 1 });
     expect(bd[1]).toMatchObject({ jogoId: 2, palpite: null, hitLevel: null, points: 0 });
+  });
+
+  it("ordena por data do jogo (mais antigo primeiro)", () => {
+    const fora = [...games].reverse(); // entra fora de ordem
+    const bd = participantBreakdown("ana", fora, [], config);
+    expect(bd.map((b) => b.jogoId)).toEqual([1, 2]);
   });
 });
