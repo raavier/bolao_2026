@@ -17,6 +17,8 @@ type PalpiteFormProps = {
 const scoreInputClass =
   "w-14 rounded-md border border-black/15 dark:border-white/20 bg-transparent px-2 py-1.5 text-center text-base sm:text-sm disabled:opacity-50";
 
+const toText = (n: number | null) => (n === null ? "" : String(n));
+
 export function PalpiteForm(props: PalpiteFormProps) {
   const [result, formAction, isPending] = useActionState<
     SavePalpiteResult | null,
@@ -26,10 +28,19 @@ export function PalpiteForm(props: PalpiteFormProps) {
   const kickoff = new Date(props.kickoffIso).getTime();
   const [isOpen, setIsOpen] = useState(() => Date.now() < kickoff);
 
-  // Agenda a trava do campo para o instante exato do apito, sem recarregar.
-  // Como o estado inicial já considera o horário, aqui só lidamos com a
-  // transição futura. setTimeout estoura acima de ~24,8 dias; jogos mais
-  // distantes não precisam de timer nesta sessão.
+  // Valores atuais nos campos (o que a pessoa está digitando).
+  const [campo, setCampo] = useState<{ home: string; away: string }>({
+    home: toText(props.palpiteMandante),
+    away: toText(props.palpiteVisitante),
+  });
+
+  // Valores que ESTÃO no banco: derivados sem efeito — se um save confirmou
+  // nesta sessão, vale o resultado; senão, o que veio do servidor (persiste
+  // após refresh, pois a prop vem do banco).
+  const salvo = result?.ok
+    ? { home: String(result.golsMandante), away: String(result.golsVisitante) }
+    : { home: toText(props.palpiteMandante), away: toText(props.palpiteVisitante) };
+
   const MAX_TIMEOUT = 2_147_483_647;
   useEffect(() => {
     if (!isOpen) return;
@@ -39,12 +50,18 @@ export function PalpiteForm(props: PalpiteFormProps) {
     return () => clearTimeout(timer);
   }, [isOpen, kickoff]);
 
+  const temSalvo = salvo.home !== "" && salvo.away !== "";
+  const campoIgualSalvo = campo.home === salvo.home && campo.away === salvo.away;
+
   return (
     <form
       action={formAction}
       className="flex flex-col gap-1 border-b border-black/5 dark:border-white/10 py-3"
     >
-      <span className="text-xs text-foreground/50">{props.inicioLabel}</span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs text-foreground/50">{props.inicioLabel}</span>
+        <StatusTag isOpen={isOpen} temSalvo={temSalvo} pendente={!campoIgualSalvo} />
+      </div>
       <input type="hidden" name="jogoId" value={props.jogoId} />
       <div className="flex items-center gap-2 text-sm">
         <span className="flex-1 flex items-center justify-end gap-2 min-w-0">
@@ -58,7 +75,8 @@ export function PalpiteForm(props: PalpiteFormProps) {
           max={99}
           required
           disabled={!isOpen}
-          defaultValue={props.palpiteMandante ?? ""}
+          value={campo.home}
+          onChange={(e) => setCampo((c) => ({ ...c, home: e.target.value }))}
           className={scoreInputClass}
         />
         <span className="text-foreground/40">×</span>
@@ -69,7 +87,8 @@ export function PalpiteForm(props: PalpiteFormProps) {
           max={99}
           required
           disabled={!isOpen}
-          defaultValue={props.palpiteVisitante ?? ""}
+          value={campo.away}
+          onChange={(e) => setCampo((c) => ({ ...c, away: e.target.value }))}
           className={scoreInputClass}
         />
         <span className="flex-1 flex items-center gap-2 min-w-0">
@@ -77,25 +96,51 @@ export function PalpiteForm(props: PalpiteFormProps) {
           <span className="truncate">{props.visitante}</span>
         </span>
       </div>
-      <div className="flex justify-end mt-1">
-        {isOpen ? (
+      {isOpen ? (
+        <div className="flex justify-end mt-1">
           <button
             type="submit"
-            disabled={isPending}
-            className="rounded-md bg-foreground text-background px-4 py-1.5 text-xs font-medium disabled:opacity-60"
+            disabled={isPending || campoIgualSalvo}
+            className="rounded-md bg-foreground text-background px-4 py-1.5 text-xs font-medium disabled:opacity-40"
           >
-            {isPending ? "…" : "Salvar"}
+            {isPending ? "…" : campoIgualSalvo && temSalvo ? "Salvo" : "Salvar"}
           </button>
-        ) : (
-          <span className="text-xs text-foreground/40">🔒 fechado</span>
-        )}
-      </div>
-      {result?.ok === true ? (
-        <span className="text-xs text-green-600">Palpite salvo.</span>
+        </div>
       ) : null}
       {result?.ok === false ? (
-        <span className="text-xs text-red-600">{result.error}</span>
+        <span className="text-xs text-red-600 text-right">{result.error}</span>
       ) : null}
     </form>
   );
+}
+
+function StatusTag({
+  isOpen,
+  temSalvo,
+  pendente,
+}: {
+  isOpen: boolean;
+  temSalvo: boolean;
+  pendente: boolean;
+}) {
+  const base = "text-xs font-medium px-2 py-0.5 rounded-full";
+
+  if (!isOpen) {
+    return temSalvo ? (
+      <span className={`${base} bg-green-600/15 text-green-700`}>✓ Palpite salvo</span>
+    ) : (
+      <span className={`${base} bg-foreground/10 text-foreground/50`}>🔒 Sem palpite</span>
+    );
+  }
+
+  if (!temSalvo && pendente) {
+    return <span className={`${base} text-amber-600`}>● Não salvo</span>;
+  }
+  if (!temSalvo) {
+    return <span className={`${base} text-foreground/40`}>Em branco</span>;
+  }
+  if (pendente) {
+    return <span className={`${base} text-amber-600`}>● Alterações não salvas</span>;
+  }
+  return <span className={`${base} bg-green-600/15 text-green-700`}>✓ Salvo</span>;
 }

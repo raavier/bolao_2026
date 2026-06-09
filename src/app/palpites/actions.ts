@@ -11,7 +11,9 @@ const palpiteSchema = z.object({
   golsVisitante: z.coerce.number().int().min(0).max(99),
 });
 
-export type SavePalpiteResult = { ok: true } | { ok: false; error: string };
+export type SavePalpiteResult =
+  | { ok: true; golsMandante: number; golsVisitante: number }
+  | { ok: false; error: string };
 
 export async function savePalpite(
   _prev: SavePalpiteResult | null,
@@ -62,5 +64,5 @@ export async function savePalpite(
   }
 
   revalidatePath("/palpites");
-  return { ok: true };
+  return { ok: true, golsMandante, golsVisitante };
 }
