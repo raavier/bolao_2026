@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { supabaseEnv } from "./env";
 import type { Database } from "./database.types";
 
-const PUBLIC_ROUTES = ["/", "/login", "/auth", "/regras", "/ranking", "/jogos"];
+const PUBLIC_ROUTES = ["/", "/login", "/auth", "/regras", "/ranking", "/grupos", "/jogos"];
 
 const isPublic = (pathname: string) =>
   PUBLIC_ROUTES.some(

@@ -5,6 +5,7 @@ import { LogoutButton } from "./logout-button";
 const NAV_LINKS = [
   { href: "/", label: "Início" },
   { href: "/ranking", label: "Ranking" },
+  { href: "/grupos", label: "Grupos" },
   { href: "/jogos", label: "Jogos" },
   { href: "/palpites", label: "Meus palpites" },
   { href: "/regras", label: "Regras" },
