@@ -1,0 +1,61 @@
+# ============================================================================
+# Configuração de Pontuação — Bolão da Copa 2026
+# ----------------------------------------------------------------------------
+# Este arquivo é a ÚNICA fonte da verdade das regras de pontuação.
+# Edite os números aqui e o app (cálculo + página de regras) acompanha.
+# Os valores são validados por schema no carregamento — se digitar algo
+# inválido (texto onde espera número, etc.), o app avisa em vez de calcular errado.
+# ============================================================================
+
+# --- Política de travamento dos palpites ------------------------------------
+# DECIDIDO: o palpite pode ser editado até a HORA EXATA do apito inicial de
+# cada jogo. Depois disso, trava. (per_game)
+#
+# per_game  = cada jogo trava no seu próprio apito inicial. [EM USO]
+# per_phase = todos os palpites de uma fase travam quando a fase começa.
+lock_policy: per_game
+
+# --- Base do placar no mata-mata --------------------------------------------
+# Pênaltis NÃO contam para o placar do palpite. O que vale é:
+#   regular_plus_extra_time = tempo normal + prorrogação
+#   regular_only            = só tempo normal
+knockout_score_basis: regular_plus_extra_time
+
+# --- Pontos por nível de acerto (placar de um jogo) -------------------------
+# Aplicados sobre o resultado de cada partida e depois multiplicados pelo
+# peso da fase (ver phase_weights).
+points:
+  exact_score: 5          # 🎯 Placar exato ("na mosca")
+  winner_and_goal_diff: 3 # ↔️ Acertou o vencedor E a diferença de gols
+  winner_only: 2          # ✅ Acertou só o vencedor (ou que foi empate)
+  miss: 0                 # ❌ Errou o resultado
+
+# --- Peso por fase ----------------------------------------------------------
+# O total do jogo = pontos do nível de acerto × peso da fase.
+# Pesos fracionados (mata-mata vale progressivamente mais).
+phase_weights:
+  group: 1.0          # Fase de grupos
+  round_of_32: 1.0    # 32 avos (fase nova do formato de 48 seleções)
+  round_of_16: 1.5    # Oitavas de final
+  quarter_finals: 2.0 # Quartas de final
+  semi_finals: 2.5    # Semifinais
+  third_place: 2.5    # Disputa de 3º lugar (mesmo peso da semi)
+  final: 3.0          # Final
+
+# Arredondar pontos fracionados para inteiro? (ex.: 7.5 -> 8)
+round_points_to_integer: false
+
+# Sem bônus: o bolão é só pelos placares dos jogos. (Sem palpite de campeão/
+# artilheiro e sem bônus de "quem avança" no mata-mata.)
+
+# --- Palpite em branco ------------------------------------------------------
+# Pontos para quem não palpitou antes do jogo travar.
+# 0 = neutro (sugerido). Negativo = penalidade.
+blank_prediction_points: 0
+
+# --- Critérios de desempate (ordem importa) ---------------------------------
+tiebreakers:
+  - total_points     # 1º maior pontuação total
+  - exact_scores     # 2º mais placares cravados
+  - correct_results  # 3º mais resultados certos
+  # empate restante: posição dividida (ou sorteio — a definir)

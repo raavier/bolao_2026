@@ -1,0 +1,93 @@
+/**
+ * Tipos do banco. Placeholder escrito à mão a partir do modelo de dados
+ * (DEFINICOES.md §7). Quando o projeto Supabase existir, regerar com:
+ *   npx supabase gen types typescript --project-id <id> > src/lib/supabase/database.types.ts
+ * e remover este aviso.
+ *
+ * O formato (incluindo `Relationships`, `Views`, `Functions`, `Enums`,
+ * `CompositeTypes`) segue o que o supabase-js espera para inferir os tipos
+ * das queries — sem isso, o resultado das queries colapsa para `never`.
+ */
+import type { Phase } from "@/lib/scoring/phases";
+
+export type JogoStatus = "agendado" | "encerrado";
+
+export type Database = {
+  public: {
+    Tables: {
+      participantes: {
+        Row: {
+          id: string;
+          nome: string;
+          email: string;
+          is_admin: boolean;
+          bloqueado: boolean;
+          criado_em: string;
+        };
+        Insert: {
+          id: string;
+          nome: string;
+          email: string;
+          is_admin?: boolean;
+          bloqueado?: boolean;
+          criado_em?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["participantes"]["Insert"]>;
+        Relationships: [];
+      };
+      jogos: {
+        Row: {
+          id: number;
+          fase: Phase;
+          grupo: string | null;
+          inicio: string;
+          mandante: string;
+          visitante: string;
+          gols_mandante: number | null;
+          gols_visitante: number | null;
+          status: JogoStatus;
+        };
+        Insert: {
+          id: number;
+          fase: Phase;
+          grupo?: string | null;
+          inicio: string;
+          mandante: string;
+          visitante: string;
+          gols_mandante?: number | null;
+          gols_visitante?: number | null;
+          status?: JogoStatus;
+        };
+        Update: Partial<Database["public"]["Tables"]["jogos"]["Insert"]>;
+        Relationships: [];
+      };
+      palpites: {
+        Row: {
+          id: string;
+          participante_id: string;
+          jogo_id: number;
+          gols_mandante: number;
+          gols_visitante: number;
+          atualizado_em: string;
+        };
+        Insert: {
+          id?: string;
+          participante_id: string;
+          jogo_id: number;
+          gols_mandante: number;
+          gols_visitante: number;
+          atualizado_em?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["palpites"]["Insert"]>;
+        Relationships: [];
+      };
+    };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: {
+      fase: Phase;
+      jogo_status: JogoStatus;
+    };
+    CompositeTypes: Record<string, never>;
+  };
+};
