@@ -83,6 +83,26 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["palpites"]["Insert"]>;
         Relationships: [];
       };
+      palpites_log: {
+        Row: {
+          id: number;
+          participante_id: string;
+          jogo_id: number;
+          gols_mandante: number;
+          gols_visitante: number;
+          criado_em: string;
+        };
+        Insert: {
+          id?: number;
+          participante_id: string;
+          jogo_id: number;
+          gols_mandante: number;
+          gols_visitante: number;
+          criado_em?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["palpites_log"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
