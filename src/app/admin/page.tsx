@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { formatKickoff } from "@/lib/format";
@@ -27,6 +28,12 @@ export default async function AdminPage() {
           Quem entrou no bolão. Você pode bloquear alguém — o bloqueado não
           consegue mais registrar nem editar palpites.
         </p>
+        <Link
+          href="/admin/resultados"
+          className="inline-block text-sm text-foreground/70 hover:text-foreground underline underline-offset-2"
+        >
+          → Lançar resultados dos jogos
+        </Link>
       </header>
 
       <ul className="divide-y divide-black/5 dark:divide-white/10">
