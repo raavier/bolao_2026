@@ -2,10 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { NavMenu, type NavLink } from "./nav-menu";
 
 const BASE_LINKS: NavLink[] = [
-  { href: "/ranking", label: "Ranking" },
-  { href: "/grupos", label: "Grupos" },
-  { href: "/jogos", label: "Jogos" },
   { href: "/palpites", label: "Meus palpites" },
+  { href: "/ranking", label: "Ranking" },
+  { href: "/jogos", label: "Jogos" },
+  { href: "/grupos", label: "Grupos" },
   { href: "/regras", label: "Regras" },
 ];
 

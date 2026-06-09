@@ -4,7 +4,8 @@ const CARDS = [
   { href: "/palpites", title: "Meus palpites", desc: "Registre os placares antes de cada jogo começar." },
   { href: "/ranking", title: "Ranking", desc: "Veja quem está na frente, atualizado a cada resultado." },
   { href: "/jogos", title: "Jogos", desc: "Calendário, resultados e seus palpites." },
-  { href: "/regras", title: "Como pontua", desc: "A pontuação completa, do placar exato aos bônus." },
+  { href: "/grupos", title: "Grupos", desc: "Classificação dos 12 grupos pelos resultados." },
+  { href: "/regras", title: "Regras", desc: "Como pontua: do placar exato aos pesos por fase." },
 ] as const;
 
 export default function HomePage() {
