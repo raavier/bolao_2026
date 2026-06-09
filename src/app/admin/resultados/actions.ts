@@ -3,11 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
+import { BRACKET_MAP } from "@/lib/bracket";
 
 const resultadoSchema = z.object({
   jogoId: z.coerce.number().int().positive(),
   golsMandante: z.coerce.number().int().min(0).max(99),
   golsVisitante: z.coerce.number().int().min(0).max(99),
+  // Quem avançou: "home" ou "away". Opcional (só faz sentido no mata-mata).
+  avancou: z.enum(["home", "away"]).nullable().optional(),
 });
 
 export type ResultadoResult = { ok: true } | { ok: false; error: string };
@@ -27,28 +30,54 @@ export async function salvarResultado(
   _prev: ResultadoResult | null,
   formData: FormData,
 ): Promise<ResultadoResult> {
+  const avancouRaw = formData.get("avancou");
   const parsed = resultadoSchema.safeParse({
     jogoId: formData.get("jogoId"),
     golsMandante: formData.get("golsMandante"),
     golsVisitante: formData.get("golsVisitante"),
+    avancou: avancouRaw === "" ? null : avancouRaw,
   });
   if (!parsed.success) return { ok: false, error: "Placar inválido." };
 
+  const { jogoId, golsMandante, golsVisitante, avancou } = parsed.data;
   const { isAdmin, supabase } = await requireAdmin();
   if (!isAdmin) return { ok: false, error: "Apenas o admin pode lançar resultados." };
 
+  // Lê os times do jogo (necessários para propagar quem avança).
+  const { data: jogo } = await supabase
+    .from("jogos")
+    .select("mandante, visitante")
+    .eq("id", jogoId)
+    .single();
+  if (!jogo) return { ok: false, error: "Jogo não encontrado." };
+
   const { error } = await supabase
     .from("jogos")
-    .update({
-      gols_mandante: parsed.data.golsMandante,
-      gols_visitante: parsed.data.golsVisitante,
-      status: "encerrado",
-    })
-    .eq("id", parsed.data.jogoId);
-
+    .update({ gols_mandante: golsMandante, gols_visitante: golsVisitante, status: "encerrado" })
+    .eq("id", jogoId);
   if (error) return { ok: false, error: "Não foi possível salvar." };
 
+  // Propaga o vencedor (e, no caso da semi, o perdedor para a disputa de 3º)
+  // para os jogos seguintes do chaveamento.
+  const targets = BRACKET_MAP[jogoId];
+  if (targets && avancou) {
+    const vencedor = avancou === "home" ? jogo.mandante : jogo.visitante;
+    const perdedor = avancou === "home" ? jogo.visitante : jogo.mandante;
+
+    if (targets.W) {
+      const patch =
+        targets.W.slot === "home" ? { mandante: vencedor } : { visitante: vencedor };
+      await supabase.from("jogos").update(patch).eq("id", targets.W.jogo);
+    }
+    if (targets.L) {
+      const patch =
+        targets.L.slot === "home" ? { mandante: perdedor } : { visitante: perdedor };
+      await supabase.from("jogos").update(patch).eq("id", targets.L.jogo);
+    }
+  }
+
   revalidatePath("/admin/resultados");
+  revalidatePath("/admin/mata-mata");
   revalidatePath("/ranking");
   revalidatePath("/jogos");
   return { ok: true };

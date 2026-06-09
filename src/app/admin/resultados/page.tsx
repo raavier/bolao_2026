@@ -18,7 +18,7 @@ export default async function ResultadosPage() {
 
   const { data: jogos } = await supabase
     .from("jogos")
-    .select("id, inicio, mandante, visitante, gols_mandante, gols_visitante, status")
+    .select("id, fase, inicio, mandante, visitante, gols_mandante, gols_visitante, status")
     .order("inicio", { ascending: true });
 
   const todos = jogos ?? [];
@@ -42,6 +42,7 @@ export default async function ResultadosPage() {
       golsMandante={j.gols_mandante}
       golsVisitante={j.gols_visitante}
       encerrado={j.status === "encerrado"}
+      isKnockout={j.fase !== "group"}
     />
   );
 
