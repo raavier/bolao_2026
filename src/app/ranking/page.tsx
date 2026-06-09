@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { loadScoringConfig } from "@/lib/scoring/load-config";
 import { computeRanking } from "@/lib/scoring/ranking";
+import { displayName } from "@/lib/display-name";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,7 @@ export default async function RankingPage() {
   const config = loadScoringConfig();
 
   const [{ data: participantes }, { data: jogos }] = await Promise.all([
-    supabase.from("participantes").select("id, nome"),
+    supabase.from("participantes").select("id, nome, nickname"),
     supabase
       .from("jogos")
       .select("id, fase, gols_mandante, gols_visitante")
@@ -29,7 +30,7 @@ export default async function RankingPage() {
     : { data: [] };
 
   const ranking = computeRanking(
-    (participantes ?? []).map((p) => ({ id: p.id, nome: p.nome })),
+    (participantes ?? []).map((p) => ({ id: p.id, nome: displayName(p) })),
     jogosEncerrados.map((j) => ({
       id: j.id,
       phase: j.fase,

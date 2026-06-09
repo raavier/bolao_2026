@@ -50,7 +50,15 @@ export async function SiteNav() {
           </Link>
         ) : null}
         {user ? (
-          <LogoutButton />
+          <>
+            <Link
+              href="/perfil"
+              className="ml-auto text-foreground/70 hover:text-foreground transition-colors"
+            >
+              Perfil
+            </Link>
+            <LogoutButton />
+          </>
         ) : (
           <Link
             href="/login"

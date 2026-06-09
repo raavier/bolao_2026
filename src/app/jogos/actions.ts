@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { isPredictionOpen } from "@/lib/palpites/lock";
+import { displayName } from "@/lib/display-name";
 
 export type PalpiteDeTodos = {
   nome: string;
@@ -40,8 +41,10 @@ export async function verPalpitesDoJogo(jogoId: number): Promise<VerPalpitesResu
 
   if (error) return { ok: false, error: "Não foi possível carregar os palpites." };
 
-  const { data: pessoas } = await supabase.from("participantes").select("id, nome");
-  const nomePorId = new Map((pessoas ?? []).map((p) => [p.id, p.nome]));
+  const { data: pessoas } = await supabase
+    .from("participantes")
+    .select("id, nome, nickname");
+  const nomePorId = new Map((pessoas ?? []).map((p) => [p.id, displayName(p)]));
 
   const palpites = (rows ?? [])
     .map((row) => ({

@@ -19,6 +19,7 @@ export type Database = {
         Row: {
           id: string;
           nome: string;
+          nickname: string | null;
           email: string;
           is_admin: boolean;
           bloqueado: boolean;
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           id: string;
           nome: string;
+          nickname?: string | null;
           email: string;
           is_admin?: boolean;
           bloqueado?: boolean;
@@ -83,7 +85,12 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      set_nickname: {
+        Args: { novo: string };
+        Returns: undefined;
+      };
+    };
     Enums: {
       fase: Phase;
       jogo_status: JogoStatus;

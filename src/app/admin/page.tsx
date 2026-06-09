@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { formatKickoff } from "@/lib/format";
+import { displayName } from "@/lib/display-name";
 import { setBlocked } from "./actions";
 
 export default async function AdminPage() {
@@ -17,7 +18,7 @@ export default async function AdminPage() {
 
   const { data: participantes } = await supabase
     .from("participantes")
-    .select("id, nome, email, bloqueado, is_admin, criado_em")
+    .select("id, nome, nickname, email, bloqueado, is_admin, criado_em")
     .order("criado_em", { ascending: true });
 
   return (
@@ -43,7 +44,7 @@ export default async function AdminPage() {
             <li key={p.id} className="flex items-center gap-3 py-3 text-sm">
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">
-                  {p.nome}
+                  {displayName(p)}
                   {p.is_admin ? (
                     <span className="ml-2 text-xs text-foreground/50">(admin)</span>
                   ) : null}
