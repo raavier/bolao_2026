@@ -17,7 +17,7 @@ type ResultadoFormProps = {
 };
 
 const scoreInputClass =
-  "w-12 rounded-md border border-black/15 dark:border-white/20 bg-transparent px-2 py-1 text-center text-sm";
+  "w-14 rounded-md border border-black/15 dark:border-white/20 bg-transparent px-2 py-1.5 text-center text-base sm:text-sm";
 
 export function ResultadoForm(props: ResultadoFormProps) {
   const [result, formAction, isPending] = useActionState<
@@ -64,24 +64,15 @@ export function ResultadoForm(props: ResultadoFormProps) {
             <Flag team={props.visitante} />
             <span className="truncate">{props.visitante}</span>
           </span>
-          {props.isKnockout ? null : (
-            <button
-              type="submit"
-              disabled={isPending}
-              className="rounded-md bg-foreground text-background px-3 py-1 text-xs font-medium disabled:opacity-60"
-            >
-              {botaoLabel}
-            </button>
-          )}
         </div>
 
         {props.isKnockout ? (
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="text-foreground/50">Quem avançou:</span>
             <select
               name="avancou"
               defaultValue=""
-              className="rounded-md border border-black/15 dark:border-white/20 bg-transparent px-2 py-1"
+              className="rounded-md border border-black/15 dark:border-white/20 bg-transparent px-2 py-1.5 text-base sm:text-sm"
             >
               <option value="">—</option>
               <option value="home">{props.mandante}</option>
@@ -91,12 +82,22 @@ export function ResultadoForm(props: ResultadoFormProps) {
             <button
               type="submit"
               disabled={isPending}
-              className="ml-auto rounded-md bg-foreground text-background px-3 py-1 font-medium disabled:opacity-60"
+              className="ml-auto rounded-md bg-foreground text-background px-4 py-1.5 font-medium disabled:opacity-60"
             >
               {botaoLabel}
             </button>
           </div>
-        ) : null}
+        ) : (
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="rounded-md bg-foreground text-background px-4 py-1.5 text-xs font-medium disabled:opacity-60"
+            >
+              {botaoLabel}
+            </button>
+          </div>
+        )}
       </form>
 
       <div className="flex items-center gap-3 mt-1 min-h-4">

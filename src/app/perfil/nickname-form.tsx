@@ -23,7 +23,7 @@ export function NicknameForm({ atual }: { atual: string }) {
         maxLength={20}
         defaultValue={atual}
         placeholder="Como você quer aparecer no ranking"
-        className="w-full rounded-md border border-black/15 dark:border-white/20 bg-transparent px-3 py-2 text-sm"
+        className="w-full rounded-md border border-black/15 dark:border-white/20 bg-transparent px-3 py-2 text-base sm:text-sm"
       />
       <button
         type="submit"

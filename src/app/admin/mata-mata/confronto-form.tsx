@@ -12,7 +12,7 @@ type ConfrontoFormProps = {
 };
 
 const inputClass =
-  "flex-1 min-w-0 rounded-md border border-black/15 dark:border-white/20 bg-transparent px-2 py-1 text-sm";
+  "flex-1 min-w-0 rounded-md border border-black/15 dark:border-white/20 bg-transparent px-2 py-1.5 text-base sm:text-sm";
 
 export function ConfrontoForm(props: ConfrontoFormProps) {
   const [result, formAction, isPending] = useActionState<
@@ -34,26 +34,28 @@ export function ConfrontoForm(props: ConfrontoFormProps) {
           <option key={t} value={t} />
         ))}
       </datalist>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
         <input
           name="mandante"
           list={listId}
           defaultValue={props.mandante}
           required
+          aria-label="Mandante"
           className={inputClass}
         />
-        <span className="text-foreground/40 text-xs shrink-0">×</span>
+        <span className="text-foreground/40 text-xs shrink-0 hidden sm:inline">×</span>
         <input
           name="visitante"
           list={listId}
           defaultValue={props.visitante}
           required
+          aria-label="Visitante"
           className={inputClass}
         />
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-foreground text-background px-3 py-1 text-xs font-medium disabled:opacity-60 shrink-0"
+          className="rounded-md bg-foreground text-background px-4 py-1.5 text-xs font-medium disabled:opacity-60 shrink-0 w-full sm:w-auto"
         >
           {isPending ? "…" : "Salvar"}
         </button>

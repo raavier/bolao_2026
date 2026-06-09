@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteNav } from "@/components/site-nav";
@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   description: "Bolão da Copa do Mundo de 2026 entre amigos",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,9 +33,9 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col overflow-x-hidden">
         <SiteNav />
-        <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-8">
+        <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-6 sm:py-8">
           {children}
         </main>
       </body>

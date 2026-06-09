@@ -15,7 +15,7 @@ type PalpiteFormProps = {
 };
 
 const scoreInputClass =
-  "w-12 rounded-md border border-black/15 dark:border-white/20 bg-transparent px-2 py-1 text-center text-sm disabled:opacity-50";
+  "w-14 rounded-md border border-black/15 dark:border-white/20 bg-transparent px-2 py-1.5 text-center text-base sm:text-sm disabled:opacity-50";
 
 export function PalpiteForm(props: PalpiteFormProps) {
   const [result, formAction, isPending] = useActionState<
@@ -76,16 +76,18 @@ export function PalpiteForm(props: PalpiteFormProps) {
           <Flag team={props.visitante} />
           <span className="truncate">{props.visitante}</span>
         </span>
+      </div>
+      <div className="flex justify-end mt-1">
         {isOpen ? (
           <button
             type="submit"
             disabled={isPending}
-            className="rounded-md bg-foreground text-background px-3 py-1 text-xs font-medium disabled:opacity-60"
+            className="rounded-md bg-foreground text-background px-4 py-1.5 text-xs font-medium disabled:opacity-60"
           >
             {isPending ? "…" : "Salvar"}
           </button>
         ) : (
-          <span className="text-xs text-foreground/40 px-3">🔒 fechado</span>
+          <span className="text-xs text-foreground/40">🔒 fechado</span>
         )}
       </div>
       {result?.ok === true ? (

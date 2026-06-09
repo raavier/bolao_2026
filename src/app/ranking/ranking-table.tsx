@@ -28,14 +28,14 @@ export function RankingTable({ rows }: { rows: RankingTableRow[] }) {
   const [aberto, setAberto] = useState<string | null>(null);
 
   return (
-    <table className="w-full text-sm border-collapse">
+    <table className="w-full text-sm border-collapse table-fixed">
       <thead>
         <tr className="text-left border-b border-black/10 dark:border-white/15">
-          <th className="py-2 w-8">#</th>
+          <th className="py-2 w-7">#</th>
           <th className="py-2">Participante</th>
-          <th className="py-2 text-right">Pontos</th>
-          <th className="py-2 text-right" title="Placares cravados">🎯</th>
-          <th className="py-2 text-right" title="Resultados certos">✅</th>
+          <th className="py-2 text-right w-16">Pontos</th>
+          <th className="py-2 text-right w-9" title="Placares cravados">🎯</th>
+          <th className="py-2 text-right w-9" title="Resultados certos">✅</th>
         </tr>
       </thead>
       <tbody>
@@ -74,7 +74,7 @@ function RankingRowGroup({
         className="border-b border-black/5 dark:border-white/10 cursor-pointer hover:bg-foreground/5"
       >
         <td className="py-2 text-foreground/50">{posicao}</td>
-        <td className="py-2 font-medium">
+        <td className="py-2 font-medium truncate">
           <span className="text-foreground/40 mr-1">{expandido ? "▾" : "▸"}</span>
           {row.nome}
         </td>
@@ -90,34 +90,38 @@ function RankingRowGroup({
                 Nenhum jogo encerrado ainda.
               </p>
             ) : (
-              <ul className="space-y-1 px-2">
+              <ul className="space-y-2 px-2">
                 {row.breakdown.map((item) => (
                   <li
                     key={item.jogoId}
-                    className="flex items-center gap-2 text-xs border-b border-black/5 dark:border-white/5 py-1"
+                    className="text-xs border-b border-black/5 dark:border-white/5 pb-2"
                   >
-                    <span className="flex items-center gap-1 flex-1 min-w-0 justify-end">
-                      <span className="truncate">{item.mandante}</span>
-                      <Flag team={item.mandante} />
-                    </span>
-                    <span className="font-medium tabular-nums">
-                      {item.resultado.home}×{item.resultado.away}
-                    </span>
-                    <span className="flex items-center gap-1 flex-1 min-w-0">
-                      <Flag team={item.visitante} />
-                      <span className="truncate">{item.visitante}</span>
-                    </span>
-                    <span className="text-foreground/50 w-28 text-right shrink-0">
-                      {item.palpite
-                        ? `palpite ${item.palpite.home}×${item.palpite.away}`
-                        : "sem palpite"}
-                    </span>
-                    <span className="w-32 text-right shrink-0 text-foreground/70">
-                      {item.hitLevel ? HIT_LABEL[item.hitLevel] : "—"}
-                    </span>
-                    <span className="w-10 text-right shrink-0 font-semibold">
-                      +{formatPoints(item.points)}
-                    </span>
+                    {/* Linha A: confronto e resultado */}
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center gap-1 flex-1 min-w-0 justify-end">
+                        <span className="truncate">{item.mandante}</span>
+                        <Flag team={item.mandante} />
+                      </span>
+                      <span className="font-medium tabular-nums shrink-0">
+                        {item.resultado.home}×{item.resultado.away}
+                      </span>
+                      <span className="flex items-center gap-1 flex-1 min-w-0">
+                        <Flag team={item.visitante} />
+                        <span className="truncate">{item.visitante}</span>
+                      </span>
+                    </div>
+                    {/* Linha B: palpite, nível de acerto e pontos */}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5 text-foreground/60">
+                      <span>
+                        {item.palpite
+                          ? `palpite ${item.palpite.home}×${item.palpite.away}`
+                          : "sem palpite"}
+                      </span>
+                      <span>{item.hitLevel ? HIT_LABEL[item.hitLevel] : "—"}</span>
+                      <span className="ml-auto font-semibold text-foreground">
+                        +{formatPoints(item.points)}
+                      </span>
+                    </div>
                   </li>
                 ))}
               </ul>
