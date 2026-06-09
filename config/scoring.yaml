@@ -33,14 +33,16 @@ points:
 # --- Peso por fase ----------------------------------------------------------
 # O total do jogo = pontos do nível de acerto × peso da fase.
 # Pesos fracionados (mata-mata vale progressivamente mais).
+# Calibrados para que grupos e mata-mata somem ~360 pts cada (50%/50% do total),
+# com o mata-mata crescendo progressivamente até a final ter o maior peso.
 phase_weights:
-  group: 1.0          # Fase de grupos
-  round_of_32: 1.0    # 32 avos (fase nova do formato de 48 seleções)
-  round_of_16: 1.5    # Oitavas de final
-  quarter_finals: 2.0 # Quartas de final
-  semi_finals: 2.5    # Semifinais
-  third_place: 2.5    # Disputa de 3º lugar (mesmo peso da semi)
-  final: 3.0          # Final
+  group: 1.0          # Fase de grupos        → 72 jogos × 5 ×1.0 = 360 pts
+  round_of_32: 1.0    # 32 avos               → 16 ×5 ×1.0 =  80 pts
+  round_of_16: 2.0    # Oitavas de final      →  8 ×5 ×2.0 =  80 pts
+  quarter_finals: 4.0 # Quartas de final      →  4 ×5 ×4.0 =  80 pts
+  semi_finals: 5.5    # Semifinais            →  2 ×5 ×5.5 =  55 pts
+  third_place: 5.5    # Disputa de 3º lugar (mesmo peso da semi) → 27,5 pts
+  final: 7.5          # Final                 →  1 ×5 ×7.5 = 37,5 pts
 
 # Arredondar pontos fracionados para inteiro? (ex.: 7.5 -> 8)
 round_points_to_integer: false
