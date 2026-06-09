@@ -1,7 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { loadScoringConfig } from "@/lib/scoring/load-config";
-import { computeRanking } from "@/lib/scoring/ranking";
+import {
+  computeRanking,
+  participantBreakdown,
+  type BreakdownGame,
+  type RankingPrediction,
+} from "@/lib/scoring/ranking";
 import { displayName } from "@/lib/display-name";
+import { RankingTable, type RankingTableRow } from "./ranking-table";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +19,7 @@ export default async function RankingPage() {
     supabase.from("participantes").select("id, nome, nickname"),
     supabase
       .from("jogos")
-      .select("id, fase, gols_mandante, gols_visitante")
+      .select("id, fase, mandante, visitante, gols_mandante, gols_visitante")
       .eq("status", "encerrado"),
   ]);
 
@@ -29,22 +35,33 @@ export default async function RankingPage() {
         .in("jogo_id", jogoIds)
     : { data: [] };
 
+  const games: BreakdownGame[] = jogosEncerrados.map((j) => ({
+    id: j.id,
+    phase: j.fase,
+    mandante: j.mandante,
+    visitante: j.visitante,
+    golsMandante: j.gols_mandante as number,
+    golsVisitante: j.gols_visitante as number,
+  }));
+
+  const predictions: RankingPrediction[] = (palpites ?? []).map((p) => ({
+    participanteId: p.participante_id,
+    jogoId: p.jogo_id,
+    golsMandante: p.gols_mandante,
+    golsVisitante: p.gols_visitante,
+  }));
+
   const ranking = computeRanking(
     (participantes ?? []).map((p) => ({ id: p.id, nome: displayName(p) })),
-    jogosEncerrados.map((j) => ({
-      id: j.id,
-      phase: j.fase,
-      golsMandante: j.gols_mandante as number,
-      golsVisitante: j.gols_visitante as number,
-    })),
-    (palpites ?? []).map((p) => ({
-      participanteId: p.participante_id,
-      jogoId: p.jogo_id,
-      golsMandante: p.gols_mandante,
-      golsVisitante: p.gols_visitante,
-    })),
+    games,
+    predictions,
     config,
   );
+
+  const rows: RankingTableRow[] = ranking.map((row) => ({
+    ...row,
+    breakdown: participantBreakdown(row.id, games, predictions, config),
+  }));
 
   return (
     <div className="space-y-4">
@@ -53,32 +70,11 @@ export default async function RankingPage() {
         <p className="text-sm text-foreground/60">
           {jogosEncerrados.length === 0
             ? "Ainda não há jogos encerrados. O ranking aparece quando os resultados começarem."
-            : `Baseado em ${jogosEncerrados.length} jogo(s) encerrado(s).`}
+            : `Baseado em ${jogosEncerrados.length} jogo(s) encerrado(s). Clique num nome para ver os detalhes.`}
         </p>
       </header>
 
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="text-left border-b border-black/10 dark:border-white/15">
-            <th className="py-2 w-8">#</th>
-            <th className="py-2">Participante</th>
-            <th className="py-2 text-right">Pontos</th>
-            <th className="py-2 text-right" title="Placares cravados">🎯</th>
-            <th className="py-2 text-right" title="Resultados certos">✅</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ranking.map((row, index) => (
-            <tr key={row.id} className="border-b border-black/5 dark:border-white/10">
-              <td className="py-2 text-foreground/50">{index + 1}</td>
-              <td className="py-2 font-medium">{row.nome}</td>
-              <td className="py-2 text-right font-semibold">{row.points}</td>
-              <td className="py-2 text-right text-foreground/60">{row.exactScores}</td>
-              <td className="py-2 text-right text-foreground/60">{row.correctResults}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <RankingTable rows={rows} />
     </div>
   );
 }

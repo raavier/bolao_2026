@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeRanking } from "./ranking";
+import { computeRanking, participantBreakdown, type BreakdownGame } from "./ranking";
 import type { ScoringConfig } from "./config-schema";
 
 const config: ScoringConfig = {
@@ -68,5 +68,25 @@ describe("computeRanking", () => {
     // Ana 5 pts (1 cravada, 1 resultado certo... jogo2 5x4 é vitória mandante = resultado certo) => correct=2
     // Bia 5 pts (1 cravada, 1 resultado certo) => correct=1
     expect(ranking[0].id).toBe("ana");
+  });
+});
+
+describe("participantBreakdown", () => {
+  const games: BreakdownGame[] = [
+    { id: 1, phase: "group", mandante: "Brasil", visitante: "Sérvia", golsMandante: 2, golsVisitante: 1 },
+    { id: 2, phase: "group", mandante: "Suíça", visitante: "Camarões", golsMandante: 0, golsVisitante: 0 },
+  ];
+
+  it("detalha cada jogo com palpite, nível de acerto e pontos", () => {
+    const preds = [
+      { participanteId: "ana", jogoId: 1, golsMandante: 2, golsVisitante: 1 }, // crava: 5
+      // jogo 2 sem palpite
+    ];
+    const bd = participantBreakdown("ana", games, preds, config);
+    expect(bd).toHaveLength(2);
+    // ordenado por mais pontos: jogo 1 (5) antes do jogo 2 (0)
+    expect(bd[0]).toMatchObject({ jogoId: 1, hitLevel: "exact_score", points: 5 });
+    expect(bd[0].palpite).toEqual({ home: 2, away: 1 });
+    expect(bd[1]).toMatchObject({ jogoId: 2, palpite: null, hitLevel: null, points: 0 });
   });
 });
