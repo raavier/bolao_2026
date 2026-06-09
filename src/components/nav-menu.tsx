@@ -35,7 +35,7 @@ export function NavMenu({ links, isLoggedIn }: NavMenuProps) {
         {/* Linha superior: marca + botão hambúrguer (mobile) */}
         <div className="flex items-center justify-between">
           <Link href="/" className="font-semibold" onClick={() => setOpen(false)}>
-            ⚽ Bolão 2026
+            ⚽ Bolão Bolas Crentes 2026
           </Link>
 
           {/* Links em linha — só no desktop */}

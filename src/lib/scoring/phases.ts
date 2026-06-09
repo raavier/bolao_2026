@@ -25,6 +25,17 @@ export const PHASE_LABELS: Record<Phase, string> = {
   final: "Final",
 };
 
+/** Número de jogos em cada fase (estrutura oficial de 104 jogos da Copa 2026). */
+export const GAMES_PER_PHASE: Record<Phase, number> = {
+  group: 72,
+  round_of_32: 16,
+  round_of_16: 8,
+  quarter_finals: 4,
+  semi_finals: 2,
+  third_place: 1,
+  final: 1,
+};
+
 /** Fases de mata-mata (todas exceto a fase de grupos). */
 export const KNOCKOUT_PHASES: ReadonlySet<Phase> = new Set<Phase>([
   "round_of_32",

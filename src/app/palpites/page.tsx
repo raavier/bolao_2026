@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/auth";
-import { formatKickoff } from "@/lib/format";
-import { PalpiteForm } from "./palpite-form";
+import { PalpitesList, type JogoPalpite } from "./palpites-list";
+
+export const dynamic = "force-dynamic";
 
 export default async function PalpitesPage() {
   const { user, supabase } = await requireUser();
@@ -8,7 +9,7 @@ export default async function PalpitesPage() {
   const [{ data: jogos }, { data: palpites }] = await Promise.all([
     supabase
       .from("jogos")
-      .select("id, mandante, visitante, inicio")
+      .select("id, grupo, mandante, visitante, inicio")
       .order("inicio", { ascending: true }),
     supabase
       .from("palpites")
@@ -16,9 +17,20 @@ export default async function PalpitesPage() {
       .eq("participante_id", user.id),
   ]);
 
-  const palpitePorJogo = new Map(
-    (palpites ?? []).map((p) => [p.jogo_id, p]),
-  );
+  const palpitePorJogo = new Map((palpites ?? []).map((p) => [p.jogo_id, p]));
+
+  const dados: JogoPalpite[] = (jogos ?? []).map((jogo) => {
+    const palpite = palpitePorJogo.get(jogo.id);
+    return {
+      id: jogo.id,
+      grupo: jogo.grupo,
+      mandante: jogo.mandante,
+      visitante: jogo.visitante,
+      inicio: jogo.inicio,
+      palpiteMandante: palpite?.gols_mandante ?? null,
+      palpiteVisitante: palpite?.gols_visitante ?? null,
+    };
+  });
 
   return (
     <div className="space-y-4">
@@ -30,26 +42,10 @@ export default async function PalpitesPage() {
         </p>
       </header>
 
-      {!jogos || jogos.length === 0 ? (
+      {dados.length === 0 ? (
         <p className="text-foreground/60">Os jogos ainda não foram cadastrados.</p>
       ) : (
-        <div>
-          {jogos.map((jogo) => {
-            const palpite = palpitePorJogo.get(jogo.id);
-            return (
-              <PalpiteForm
-                key={jogo.id}
-                jogoId={jogo.id}
-                mandante={jogo.mandante}
-                visitante={jogo.visitante}
-                inicioLabel={formatKickoff(jogo.inicio)}
-                kickoffIso={jogo.inicio}
-                palpiteMandante={palpite?.gols_mandante ?? null}
-                palpiteVisitante={palpite?.gols_visitante ?? null}
-              />
-            );
-          })}
-        </div>
+        <PalpitesList jogos={dados} />
       )}
     </div>
   );

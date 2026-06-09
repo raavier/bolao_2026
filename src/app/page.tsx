@@ -11,7 +11,7 @@ export default function HomePage() {
   return (
     <div className="space-y-8">
       <section className="space-y-2">
-        <h1 className="text-3xl font-bold">Bolão da Copa 2026</h1>
+        <h1 className="text-3xl font-bold">Bolão Bolas Crentes 2026</h1>
         <p className="text-foreground/70">
           11 de junho a 19 de julho — 48 seleções, 104 jogos. Palpite, acompanhe
           o ranking e dispute com os amigos.
