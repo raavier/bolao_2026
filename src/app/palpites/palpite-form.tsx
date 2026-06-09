@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Flag } from "@/components/flag";
 import { savePalpite, type SavePalpiteResult } from "./actions";
 
@@ -9,7 +9,7 @@ type PalpiteFormProps = {
   mandante: string;
   visitante: string;
   inicioLabel: string;
-  isOpen: boolean;
+  kickoffIso: string;
   palpiteMandante: number | null;
   palpiteVisitante: number | null;
 };
@@ -22,6 +22,22 @@ export function PalpiteForm(props: PalpiteFormProps) {
     SavePalpiteResult | null,
     FormData
   >(savePalpite, null);
+
+  const kickoff = new Date(props.kickoffIso).getTime();
+  const [isOpen, setIsOpen] = useState(() => Date.now() < kickoff);
+
+  // Agenda a trava do campo para o instante exato do apito, sem recarregar.
+  // Como o estado inicial já considera o horário, aqui só lidamos com a
+  // transição futura. setTimeout estoura acima de ~24,8 dias; jogos mais
+  // distantes não precisam de timer nesta sessão.
+  const MAX_TIMEOUT = 2_147_483_647;
+  useEffect(() => {
+    if (!isOpen) return;
+    const restante = kickoff - Date.now();
+    if (restante <= 0 || restante > MAX_TIMEOUT) return;
+    const timer = setTimeout(() => setIsOpen(false), restante);
+    return () => clearTimeout(timer);
+  }, [isOpen, kickoff]);
 
   return (
     <form
@@ -41,7 +57,7 @@ export function PalpiteForm(props: PalpiteFormProps) {
           min={0}
           max={99}
           required
-          disabled={!props.isOpen}
+          disabled={!isOpen}
           defaultValue={props.palpiteMandante ?? ""}
           className={scoreInputClass}
         />
@@ -52,7 +68,7 @@ export function PalpiteForm(props: PalpiteFormProps) {
           min={0}
           max={99}
           required
-          disabled={!props.isOpen}
+          disabled={!isOpen}
           defaultValue={props.palpiteVisitante ?? ""}
           className={scoreInputClass}
         />
@@ -60,7 +76,7 @@ export function PalpiteForm(props: PalpiteFormProps) {
           <Flag team={props.visitante} />
           <span className="truncate">{props.visitante}</span>
         </span>
-        {props.isOpen ? (
+        {isOpen ? (
           <button
             type="submit"
             disabled={isPending}

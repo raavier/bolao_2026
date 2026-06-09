@@ -1,5 +1,4 @@
 import { requireUser } from "@/lib/auth";
-import { isPredictionOpen } from "@/lib/palpites/lock";
 import { formatKickoff } from "@/lib/format";
 import { PalpiteForm } from "./palpite-form";
 
@@ -44,7 +43,7 @@ export default async function PalpitesPage() {
                 mandante={jogo.mandante}
                 visitante={jogo.visitante}
                 inicioLabel={formatKickoff(jogo.inicio)}
-                isOpen={isPredictionOpen(new Date(jogo.inicio))}
+                kickoffIso={jogo.inicio}
                 palpiteMandante={palpite?.gols_mandante ?? null}
                 palpiteVisitante={palpite?.gols_visitante ?? null}
               />
