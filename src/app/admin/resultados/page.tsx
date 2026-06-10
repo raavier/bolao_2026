@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { formatKickoff } from "@/lib/format";
 import { isPredictionOpen } from "@/lib/palpites/lock";
 import { ResultadoForm } from "./resultado-form";
+import { CampeaoAdminForm } from "./campeao-admin-form";
 
 export const dynamic = "force-dynamic";
 
@@ -16,10 +17,13 @@ export default async function ResultadosPage() {
     .single();
   if (!me?.is_admin) redirect("/");
 
-  const { data: jogos } = await supabase
-    .from("jogos")
-    .select("id, fase, inicio, mandante, visitante, gols_mandante, gols_visitante, status")
-    .order("inicio", { ascending: true });
+  const [{ data: jogos }, { data: campeaoConfig }] = await Promise.all([
+    supabase
+      .from("jogos")
+      .select("id, fase, inicio, mandante, visitante, gols_mandante, gols_visitante, status")
+      .order("inicio", { ascending: true }),
+    supabase.from("bolao_config").select("campeao").maybeSingle(),
+  ]);
 
   const todos = jogos ?? [];
   const agora = new Date();
@@ -54,6 +58,17 @@ export default async function ResultadosPage() {
           Digite o placar e clique em Encerrar. O ranking recalcula na hora.
         </p>
       </header>
+
+      <section className="space-y-2 rounded-lg border border-black/10 dark:border-white/15 bg-foreground/[0.03] p-4">
+        <h2 className="text-sm font-semibold text-foreground/70">
+          🏆 Campeão da Copa
+        </h2>
+        <p className="text-xs text-foreground/50">
+          Defina a seleção campeã — quem acertou ganha os pontos do palpite de
+          campeão no ranking.
+        </p>
+        <CampeaoAdminForm atual={campeaoConfig?.campeao ?? null} />
+      </section>
 
       <section className="space-y-2">
         <h2 className="text-sm font-semibold text-foreground/70">

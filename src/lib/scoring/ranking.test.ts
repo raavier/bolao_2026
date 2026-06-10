@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { computeRanking, participantBreakdown, type BreakdownGame } from "./ranking";
+import {
+  championResult,
+  computeRanking,
+  participantBreakdown,
+  type BreakdownGame,
+  type ChampionScoring,
+} from "./ranking";
 import type { ScoringConfig } from "./config-schema";
 
 const config: ScoringConfig = {
@@ -16,6 +22,7 @@ const config: ScoringConfig = {
     final: 3,
   },
   round_points_to_integer: false,
+  champion_prediction_points: 40,
   blank_prediction_points: 0,
   tiebreakers: ["total_points", "exact_scores", "correct_results"],
 };
@@ -68,6 +75,80 @@ describe("computeRanking", () => {
     // Ana 5 pts (1 cravada, 1 resultado certo... jogo2 5x4 é vitória mandante = resultado certo) => correct=2
     // Bia 5 pts (1 cravada, 1 resultado certo) => correct=1
     expect(ranking[0].id).toBe("ana");
+  });
+
+  it("soma os pontos de campeão a quem acertou, sem mexer em cravadas/resultados", () => {
+    const champion: ChampionScoring = {
+      predictions: [
+        { participanteId: "ana", selecao: "Brasil" },
+        { participanteId: "bia", selecao: "Argentina" },
+      ],
+      actual: "Brasil",
+      points: 40,
+    };
+    const ranking = computeRanking(participants, [], [], config, champion);
+    const ana = ranking.find((r) => r.id === "ana")!;
+    const bia = ranking.find((r) => r.id === "bia")!;
+    expect(ana).toMatchObject({ points: 40, exactScores: 0, correctResults: 0 });
+    expect(bia.points).toBe(0);
+  });
+
+  it("não dá pontos de campeão enquanto o campeão não foi definido", () => {
+    const champion: ChampionScoring = {
+      predictions: [{ participanteId: "ana", selecao: "Brasil" }],
+      actual: null,
+      points: 40,
+    };
+    const ranking = computeRanking(participants, [], [], config, champion);
+    expect(ranking.every((r) => r.points === 0)).toBe(true);
+  });
+
+  it("sem o argumento champion o comportamento não muda", () => {
+    const ranking = computeRanking(participants, [], [], config);
+    expect(ranking.every((r) => r.points === 0)).toBe(true);
+  });
+});
+
+describe("championResult", () => {
+  const champion: ChampionScoring = {
+    predictions: [
+      { participanteId: "ana", selecao: "Brasil" },
+      { participanteId: "bia", selecao: "Argentina" },
+    ],
+    actual: "Brasil",
+    points: 40,
+  };
+
+  it("marca acerto e pontos quando o campeão bate", () => {
+    expect(championResult("ana", champion)).toEqual({
+      palpite: "Brasil",
+      decidido: true,
+      acertou: true,
+      points: 40,
+    });
+  });
+
+  it("erro pontua zero mas mantém o palpite", () => {
+    expect(championResult("bia", champion)).toEqual({
+      palpite: "Argentina",
+      decidido: true,
+      acertou: false,
+      points: 0,
+    });
+  });
+
+  it("sem campeão definido, não decide nem pontua", () => {
+    const r = championResult("ana", { ...champion, actual: null });
+    expect(r).toEqual({ palpite: "Brasil", decidido: false, acertou: false, points: 0 });
+  });
+
+  it("participante sem palpite de campeão", () => {
+    expect(championResult("zoe", champion)).toEqual({
+      palpite: null,
+      decidido: true,
+      acertou: false,
+      points: 0,
+    });
   });
 });
 

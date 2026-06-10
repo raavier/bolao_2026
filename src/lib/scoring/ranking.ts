@@ -52,6 +52,29 @@ export type RankingRow = {
   correctResults: number;
 };
 
+export type ChampionPrediction = {
+  participanteId: string;
+  selecao: string;
+};
+
+/**
+ * Dados do palpite de campeão para o ranking: quem palpitou o quê, qual a
+ * seleção campeã de verdade (null enquanto o admin não define) e quantos
+ * pontos vale acertar. Mantido separado dos palpites de placar.
+ */
+export type ChampionScoring = {
+  predictions: ChampionPrediction[];
+  actual: string | null;
+  points: number;
+};
+
+export type ChampionResult = {
+  palpite: string | null;
+  decidido: boolean;
+  acertou: boolean;
+  points: number;
+};
+
 /**
  * Calcula o ranking a partir dos jogos encerrados, dos palpites e da config.
  * Função pura: só considera jogos com placar definido. Empate é resolvido por
@@ -62,6 +85,7 @@ export function computeRanking(
   games: RankingGame[],
   predictions: RankingPrediction[],
   config: ScoringConfig,
+  champion?: ChampionScoring,
 ): RankingRow[] {
   const gameById = new Map(games.map((game) => [game.id, game]));
   const rows = new Map<string, RankingRow>(
@@ -91,6 +115,17 @@ export function computeRanking(
     const hit = classifyHit(predScore, actual);
     if (hit === "exact_score") row.exactScores += 1;
     if (hit !== "miss") row.correctResults += 1;
+  }
+
+  // Palpite de campeão: só soma pontos (não conta como cravada/resultado).
+  // Enquanto o admin não definir o campeão (actual = null), ninguém pontua.
+  if (champion?.actual) {
+    for (const prediction of champion.predictions) {
+      const row = rows.get(prediction.participanteId);
+      if (row && prediction.selecao === champion.actual) {
+        row.points += champion.points;
+      }
+    }
   }
 
   return [...rows.values()].sort(
@@ -154,4 +189,27 @@ export function participantBreakdown(
       };
     })
     .sort((a, b) => a.inicio.localeCompare(b.inicio) || a.jogoId - b.jogoId);
+}
+
+/**
+ * Resumo do palpite de campeão de um participante, para o detalhamento do
+ * ranking. `decidido` indica se o admin já definiu o campeão; só aí `acertou`
+ * e `points` fazem sentido. Pura — espelha a regra de pontos de computeRanking.
+ */
+export function championResult(
+  participanteId: string,
+  champion: ChampionScoring,
+): ChampionResult {
+  const palpite =
+    champion.predictions.find((p) => p.participanteId === participanteId)
+      ?.selecao ?? null;
+  const decidido = champion.actual !== null;
+  const acertou = decidido && palpite !== null && palpite === champion.actual;
+
+  return {
+    palpite,
+    decidido,
+    acertou,
+    points: acertou ? champion.points : 0,
+  };
 }

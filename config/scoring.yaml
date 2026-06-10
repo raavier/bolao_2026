@@ -47,8 +47,14 @@ phase_weights:
 # Arredondar pontos fracionados para inteiro? (ex.: 7.5 -> 8)
 round_points_to_integer: false
 
-# Sem bônus: o bolão é só pelos placares dos jogos. (Sem palpite de campeão/
-# artilheiro e sem bônus de "quem avança" no mata-mata.)
+# --- Palpite de campeão -----------------------------------------------------
+# Além dos placares, cada um escolhe UMA das 48 seleções como campeã da Copa.
+# Esse palpite fecha no apito do 1º jogo (prazo único e global) e vale estes
+# pontos se acertar. O campeão real é definido pelo admin.
+champion_prediction_points: 40
+
+# Fora isso, o bolão é pelos placares dos jogos. (Sem artilheiro e sem bônus de
+# "quem avança" no mata-mata.)
 
 # --- Palpite em branco ------------------------------------------------------
 # Pontos para quem não palpitou antes do jogo travar.

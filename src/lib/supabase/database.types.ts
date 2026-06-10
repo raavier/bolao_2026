@@ -103,6 +103,34 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["palpites_log"]["Insert"]>;
         Relationships: [];
       };
+      palpite_campeao: {
+        Row: {
+          participante_id: string;
+          selecao: string;
+          atualizado_em: string;
+        };
+        Insert: {
+          participante_id: string;
+          selecao: string;
+          atualizado_em?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["palpite_campeao"]["Insert"]>;
+        Relationships: [];
+      };
+      bolao_config: {
+        Row: {
+          id: boolean;
+          campeao: string | null;
+          atualizado_em: string;
+        };
+        Insert: {
+          id?: boolean;
+          campeao?: string | null;
+          atualizado_em?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["bolao_config"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {

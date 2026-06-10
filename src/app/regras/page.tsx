@@ -112,6 +112,19 @@ export default function RegrasPage() {
       </section>
 
       <section className="space-y-2">
+        <h2 className="text-xl font-semibold">🏆 Palpite de campeão</h2>
+        <p className="text-sm">
+          Além dos placares, cada um escolhe uma das 48 seleções como campeã da
+          Copa. Acertar vale{" "}
+          <strong>{formatPoints(config.champion_prediction_points)}</strong> pts.
+        </p>
+        <p className="text-sm text-foreground/60">
+          Esse palpite fecha no apito do primeiro jogo da Copa — depois disso não
+          dá mais para trocar. O campeão é a seleção que levantar a taça.
+        </p>
+      </section>
+
+      <section className="space-y-2">
         <h2 className="text-xl font-semibold">Prazo e desempate</h2>
         <p className="text-sm">{LOCK_POLICY_TEXT[config.lock_policy]}</p>
         <p className="text-sm">

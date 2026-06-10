@@ -21,6 +21,7 @@ export const scoringConfigSchema = z.object({
   }),
   phase_weights: phaseWeights,
   round_points_to_integer: z.boolean(),
+  champion_prediction_points: z.number(),
   blank_prediction_points: z.number(),
   tiebreakers: z
     .array(z.enum(["total_points", "exact_scores", "correct_results"]))

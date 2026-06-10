@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Flag } from "@/components/flag";
 import { PhaseTag } from "@/components/phase-tag";
-import type { BreakdownItem } from "@/lib/scoring/ranking";
+import type { BreakdownItem, ChampionResult } from "@/lib/scoring/ranking";
 import type { HitLevel } from "@/lib/scoring/score-match";
 
 export type RankingTableRow = {
@@ -13,6 +13,7 @@ export type RankingTableRow = {
   exactScores: number;
   correctResults: number;
   breakdown: BreakdownItem[];
+  campeao: ChampionResult;
 };
 
 const HIT_LABEL: Record<HitLevel, string> = {
@@ -86,6 +87,7 @@ function RankingRowGroup({
       {expandido ? (
         <tr>
           <td colSpan={5} className="pb-3 pt-1">
+            <ChampionLine campeao={row.campeao} />
             {row.breakdown.length === 0 ? (
               <p className="text-xs text-foreground/50 px-2">
                 Nenhum jogo encerrado ainda.
@@ -132,5 +134,33 @@ function RankingRowGroup({
         </tr>
       ) : null}
     </>
+  );
+}
+
+function ChampionLine({ campeao }: { campeao: ChampionResult }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 px-2 pb-2 mb-2 border-b border-black/10 dark:border-white/15 text-xs">
+      <span className="font-medium">🏆 Campeão</span>
+      {campeao.palpite ? (
+        <span className="flex items-center gap-1">
+          <Flag team={campeao.palpite} />
+          <span>{campeao.palpite}</span>
+        </span>
+      ) : (
+        <span className="text-foreground/50">sem palpite</span>
+      )}
+      {campeao.decidido ? (
+        <span className="text-foreground/60">
+          {campeao.acertou ? "✅ acertou" : "❌ errou"}
+        </span>
+      ) : (
+        <span className="text-foreground/50">ainda não definido</span>
+      )}
+      {campeao.decidido ? (
+        <span className="ml-auto font-semibold text-foreground">
+          +{formatPoints(campeao.points)}
+        </span>
+      ) : null}
+    </div>
   );
 }

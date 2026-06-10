@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { BRACKET_MAP } from "@/lib/bracket";
+import { ALL_TEAMS } from "@/lib/groups";
 
 const resultadoSchema = z.object({
   jogoId: z.coerce.number().int().positive(),
@@ -80,6 +81,39 @@ export async function salvarResultado(
   revalidatePath("/admin/mata-mata");
   revalidatePath("/ranking");
   revalidatePath("/jogos");
+  return { ok: true };
+}
+
+const campeaoSchema = z.object({
+  // Vazio = limpar o campeão; senão tem que ser uma das 48 seleções.
+  selecao: z.union([z.literal(""), z.enum(ALL_TEAMS as [string, ...string[]])]),
+});
+
+export type CampeaoResult = { ok: true } | { ok: false; error: string };
+
+/** Define (ou limpa) a seleção campeã oficial — dá os 40 pts a quem acertou. */
+export async function salvarCampeao(
+  _prev: CampeaoResult | null,
+  formData: FormData,
+): Promise<CampeaoResult> {
+  const parsed = campeaoSchema.safeParse({ selecao: formData.get("selecao") });
+  if (!parsed.success) return { ok: false, error: "Seleção inválida." };
+
+  const { isAdmin, supabase } = await requireAdmin();
+  if (!isAdmin) return { ok: false, error: "Apenas o admin pode definir o campeão." };
+
+  const { error } = await supabase
+    .from("bolao_config")
+    .update({
+      campeao: parsed.data.selecao === "" ? null : parsed.data.selecao,
+      atualizado_em: new Date().toISOString(),
+    })
+    .eq("id", true);
+
+  if (error) return { ok: false, error: "Não foi possível salvar." };
+
+  revalidatePath("/admin/resultados");
+  revalidatePath("/ranking");
   return { ok: true };
 }
 
