@@ -138,6 +138,16 @@ export type Database = {
         Args: { novo: string };
         Returns: undefined;
       };
+      palpites_em_branco: {
+        Args: { janela_horas?: number };
+        Returns: {
+          participante_id: string;
+          nome: string;
+          nickname: string | null;
+          em_branco_janela: number;
+          em_branco_total: number;
+        }[];
+      };
     };
     Enums: {
       fase: Phase;

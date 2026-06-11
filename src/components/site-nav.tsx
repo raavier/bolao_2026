@@ -28,6 +28,7 @@ export async function SiteNav() {
     : false;
 
   const links: NavLink[] = [...BASE_LINKS];
+  if (isAdmin) links.push({ href: "/estatisticas", label: "Estatísticas" });
   if (isAdmin) links.push({ href: "/admin", label: "Admin" });
   if (user) links.push({ href: "/perfil", label: "Perfil" });
 
