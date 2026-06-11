@@ -16,14 +16,17 @@ export default async function EstatisticasPage() {
     .single();
   if (!me?.is_admin) redirect("/");
 
-  // A RPC roda com SECURITY DEFINER e devolve só nomes + contagens — nunca
-  // o conteúdo dos palpites. Ela própria revalida is_admin() no banco.
-  const { data: linhas, error } = await supabase.rpc("palpites_em_branco", {
-    janela_horas: JANELA_HORAS,
-  });
+  // As RPCs rodam com SECURITY DEFINER e devolvem só nomes (+ contagens) —
+  // nunca o conteúdo dos palpites. Cada uma revalida is_admin() no banco.
+  const [{ data: linhas, error }, { data: semCampeao, error: erroCampeao }] =
+    await Promise.all([
+      supabase.rpc("palpites_em_branco", { janela_horas: JANELA_HORAS }),
+      supabase.rpc("campeao_em_branco"),
+    ]);
 
   const pessoas = linhas ?? [];
   const naJanela = pessoas.filter((p) => p.em_branco_janela > 0);
+  const semCampeaoLista = semCampeao ?? [];
 
   return (
     <div className="space-y-6">
@@ -69,6 +72,40 @@ export default async function EstatisticasPage() {
                 </span>
                 <span className="shrink-0 text-xs text-foreground/50">
                   {p.em_branco_total} no total
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold">Sem palpite de campeão</h2>
+          <p className="text-sm text-foreground/60">
+            Quem ainda não escolheu a seleção campeã. Fecha no apito do 1º jogo
+            (prazo único para todos). Após o 1º apito, não aparece mais aqui.
+          </p>
+        </div>
+
+        {erroCampeao ? (
+          <p className="text-sm text-red-600">
+            Não foi possível carregar a estatística. Tente novamente.
+          </p>
+        ) : semCampeaoLista.length === 0 ? (
+          <p className="text-foreground/60">
+            Todo mundo já escolheu o campeão (ou o prazo já fechou) 🏆
+          </p>
+        ) : (
+          <ul className="divide-y divide-black/5 dark:divide-white/10">
+            {semCampeaoLista.map((p) => (
+              <li
+                key={p.participante_id}
+                className="flex items-center gap-3 py-3 text-sm"
+              >
+                <span className="flex-1 min-w-0 truncate">{displayName(p)}</span>
+                <span className="shrink-0 rounded-md bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                  sem campeão 🏆
                 </span>
               </li>
             ))}

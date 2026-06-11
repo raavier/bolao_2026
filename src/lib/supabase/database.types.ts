@@ -148,6 +148,14 @@ export type Database = {
           em_branco_total: number;
         }[];
       };
+      campeao_em_branco: {
+        Args: Record<string, never>;
+        Returns: {
+          participante_id: string;
+          nome: string;
+          nickname: string | null;
+        }[];
+      };
     };
     Enums: {
       fase: Phase;
