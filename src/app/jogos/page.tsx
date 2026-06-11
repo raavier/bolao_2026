@@ -4,6 +4,7 @@ import { PhaseTag } from "@/components/phase-tag";
 import { formatKickoff } from "@/lib/format";
 import { isPredictionOpen } from "@/lib/palpites/lock";
 import { VerPalpites } from "./ver-palpites";
+import { VerCampeao } from "./ver-campeao";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,12 @@ export default async function JogosPage() {
     .select("id, fase, grupo, inicio, mandante, visitante, gols_mandante, gols_visitante, status")
     .order("inicio", { ascending: true });
 
+  // O palpite de campeão fecha no apito do 1º jogo (prazo global); a partir daí
+  // dá para ver o de todos. Jogos vêm ordenados por inicio — o 1º é o apito.
+  const primeiroApito = jogos?.[0]?.inicio ?? null;
+  const campeaoLiberado =
+    primeiroApito !== null && !isPredictionOpen(new Date(primeiroApito));
+
   return (
     <div className="space-y-4">
       <header className="space-y-1">
@@ -23,6 +30,8 @@ export default async function JogosPage() {
           palpite de cada um.
         </p>
       </header>
+
+      {campeaoLiberado ? <VerCampeao /> : null}
 
       <ul className="divide-y divide-black/5 dark:divide-white/10">
         {(jogos ?? []).map((jogo) => {
