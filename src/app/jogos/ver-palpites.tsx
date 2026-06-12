@@ -54,16 +54,22 @@ export function VerPalpites({ jogoId }: VerPalpitesProps) {
         state.palpites.length === 0 ? (
           <p className="text-xs text-foreground/50 mt-1">Ninguém palpitou neste jogo.</p>
         ) : (
-          <ul className="mt-2 space-y-1">
-            {state.palpites.map((p) => (
-              <li key={p.nome} className="flex items-center gap-2 text-xs">
-                <span className="flex-1 truncate text-foreground/70">{p.nome}</span>
-                <span className="font-medium tabular-nums">
+          <div className="mt-2 rounded-md border border-foreground/10 overflow-hidden">
+            {state.palpites.map((p, i) => (
+              <div
+                key={p.nome}
+                className={`flex items-center px-2.5 py-1.5 text-xs transition-colors hover:bg-foreground/8 ${
+                  i % 2 === 1 ? "bg-black/[0.03] dark:bg-white/[0.04]" : ""
+                }`}
+              >
+                <span className="truncate text-foreground/80">{p.nome}</span>
+                <span className="flex-1 mx-1.5 border-b border-dotted border-foreground/20 min-w-4" />
+                <span className="font-medium tabular-nums bg-foreground/[0.07] rounded px-1.5 py-0.5">
                   {p.golsMandante} × {p.golsVisitante}
                 </span>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )
       ) : null}
     </div>
