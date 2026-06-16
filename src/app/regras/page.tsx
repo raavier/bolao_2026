@@ -8,8 +8,8 @@ const LOCK_POLICY_TEXT = {
 
 const HIT_LABELS = {
   exact_score: "🎯 Placar exato (cravou)",
-  winner_and_goal_diff: "↔️ Vencedor + diferença de gols",
-  winner_only: "✅ Só o resultado (vencedor/empate)",
+  winner_and_goal_diff: "↔️ Vencedor + diferença de gols (ou empate sem cravar)",
+  winner_only: "✅ Só o vencedor",
   miss: "❌ Errou o resultado",
 } as const;
 

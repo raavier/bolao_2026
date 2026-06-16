@@ -36,10 +36,8 @@ export function classifyHit(prediction: Scoreline, actual: Scoreline): HitLevel 
   const sameOutcome = sign(prediction.home, prediction.away) === outcome;
   if (!sameOutcome) return "miss";
 
-  // Em empate a diferença é sempre 0: o nível "winner_and_goal_diff" não se
-  // aplica (senão qualquer empate cravaria 3 pts sem acertar o placar).
-  // Acertar que foi empate sem o placar exato vale "winner_only".
-  if (outcome === 0) return "winner_only";
+  // Empate acertado sem cravar placar = "winner_and_goal_diff" (saldo 0 = 0).
+  if (outcome === 0) return "winner_and_goal_diff";
 
   const sameGoalDiff =
     prediction.home - prediction.away === actual.home - actual.away;

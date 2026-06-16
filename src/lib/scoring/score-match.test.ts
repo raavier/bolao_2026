@@ -47,8 +47,8 @@ describe("classifyHit — resultado real 2x2 (empate)", () => {
     expect(classifyHit({ home: 2, away: 2 }, actual)).toBe("exact_score");
   });
 
-  it("acertou que foi empate, placar errado (3x3) → winner_only", () => {
-    expect(classifyHit({ home: 3, away: 3 }, actual)).toBe("winner_only");
+  it("acertou que foi empate, placar errado (3x3) → winner_and_goal_diff", () => {
+    expect(classifyHit({ home: 3, away: 3 }, actual)).toBe("winner_and_goal_diff");
   });
 
   it("palpitou vitória, deu empate (1x0) → miss", () => {
