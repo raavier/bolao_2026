@@ -6,6 +6,7 @@ const BASE_LINKS: NavLink[] = [
   { href: "/ranking", label: "Ranking" },
   { href: "/jogos", label: "Jogos" },
   { href: "/grupos", label: "Grupos" },
+  { href: "/report/rodada-1", label: "Report" },
   { href: "/regras", label: "Regras" },
 ];
 
