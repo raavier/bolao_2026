@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { fetchAll } from "@/lib/supabase/fetch-all";
 import { loadScoringConfig } from "@/lib/scoring/load-config";
 import {
   championResult,
@@ -37,12 +38,24 @@ export default async function RankingPage() {
   );
   const jogoIds = jogosEncerrados.map((j) => j.id);
 
-  const { data: palpites } = jogoIds.length
-    ? await supabase
-        .from("palpites")
-        .select("participante_id, jogo_id, gols_mandante, gols_visitante")
-        .in("jogo_id", jogoIds)
-    : { data: [] };
+  // Paginado: são 13 participantes × dezenas de jogos, o que passa do teto de
+  // 1000 linhas por resposta do PostgREST. Sem paginar, os palpites excedentes
+  // somem em silêncio e o ranking mostra "Sem palpite" para jogos recentes.
+  const palpites = jogoIds.length
+    ? await fetchAll<{
+        participante_id: string;
+        jogo_id: number;
+        gols_mandante: number;
+        gols_visitante: number;
+      }>((from, to) =>
+        supabase
+          .from("palpites")
+          .select("participante_id, jogo_id, gols_mandante, gols_visitante")
+          .in("jogo_id", jogoIds)
+          .order("id")
+          .range(from, to),
+      )
+    : [];
 
   const games: BreakdownGame[] = jogosEncerrados.map((j) => ({
     id: j.id,
@@ -54,7 +67,7 @@ export default async function RankingPage() {
     golsVisitante: j.gols_visitante as number,
   }));
 
-  const predictions: RankingPrediction[] = (palpites ?? []).map((p) => ({
+  const predictions: RankingPrediction[] = palpites.map((p) => ({
     participanteId: p.participante_id,
     jogoId: p.jogo_id,
     golsMandante: p.gols_mandante,
